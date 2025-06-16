@@ -16,23 +16,27 @@ const express_1 = __importDefault(require("express"));
 const prisma_1 = require("../src/generated/prisma");
 const client = new prisma_1.PrismaClient();
 const app = (0, express_1.default)();
+app.use(express_1.default.json());
 app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.userId;
     const zapId = req.params.zapId;
     const body = req.body;
     // store in db a new trigger
     yield client.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        const run = yield client.zapRun.create({
+        const run = yield tx.zapRun.create({
             data: {
                 zapId: zapId,
                 metadata: body
             }
         });
-        yield client.zapRunOutbox.create({
+        yield tx.zapRunOutbox.create({
             data: {
                 zapRunId: run.id
             }
         });
     }));
+    res.json({
+        message: "Webhook received"
+    });
 }));
 app.listen(3000);

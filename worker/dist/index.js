@@ -30,7 +30,7 @@ function main() {
                     offset: message.offset,
                     value: (_b = message.value) === null || _b === void 0 ? void 0 : _b.toString(),
                 });
-                yield new Promise(r => setTimeout(r, 5000));
+                yield new Promise(r => setTimeout(r, 500));
                 console.log("processing done");
                 yield consumer.commitOffsets([{
                         topic: TOPIC_NAME,
