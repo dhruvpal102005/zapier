@@ -9,14 +9,15 @@ const config_1 = require("./config");
 function authMiddleware(req, res, next) {
     const token = req.headers.authorization;
     try {
-        const playload = jsonwebtoken_1.default.verify(token, config_1.JWT_PASSWORD);
-        //@ts-ignore
-        req.id = playload.id;
+        const payload = jsonwebtoken_1.default.verify(token, config_1.JWT_PASSWORD);
+        // @ts-ignore
+        req.id = payload.id;
         next();
     }
     catch (e) {
-        return res.status(403).json({
-            message: "You ar not logged in"
+        res.status(403).json({
+            message: "You are not logged in"
         });
+        return;
     }
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { Kafka } from "kafkajs";
 
 const TOPIC_NAME = "zap-events";
@@ -14,11 +14,16 @@ async function main() {
     const producer = kafka.producer();
     await producer.connect();
 
-    while(1){
+    while (1) {
         const pendingRows = await client.zapRunOutbox.findMany({
-            where:{},
+            where: {},
             take: 10
         })
+
+        if (pendingRows.length === 0) {
+            await new Promise(r => setTimeout(r, 3000));
+            continue;
+        }
 
         producer.send({
             topic: TOPIC_NAME,

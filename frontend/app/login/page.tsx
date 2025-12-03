@@ -8,18 +8,18 @@ import { useState } from "react";
 import { BACKEND_URL } from "../config";
 import { useRouter } from "next/navigation";
 
-export default function() {
+export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-    
-    return <div> 
+
+    return <div>
         <Appbar />
         <div className="flex justify-center">
             <div className="flex pt-8 max-w-4xl">
                 <div className="flex-1 pt-20 px-4">
                     <div className="font-semibold text-3xl pb-4">
-                    Join millions worldwide who automate their work using Zapier.
+                        Join millions worldwide who automate their work using Zapier.
                     </div>
                     <div className="pb-6 pt-4">
                         <CheckFeature label={"Easy setup, no coding required"} />

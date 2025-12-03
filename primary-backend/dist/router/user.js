@@ -21,12 +21,14 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config");
 const router = (0, express_1.Router)();
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const body = req.body.username;
+    const body = req.body;
     const parsedData = types_1.SignupSchema.safeParse(body);
     if (!parsedData.success) {
-        return res.status(411).json({
-            message: "Incorrect Inputs"
+        console.log(parsedData.error);
+        res.status(411).json({
+            message: "Incorrect inputs"
         });
+        return;
     }
     const userExists = yield db_1.prismaClient.user.findFirst({
         where: {
@@ -34,40 +36,44 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
     });
     if (userExists) {
-        return res.status(403).json({
+        res.status(403).json({
             message: "User already exists"
         });
+        return;
     }
     yield db_1.prismaClient.user.create({
         data: {
             email: parsedData.data.username,
+            // TODO: Dont store passwords in plaintext, hash it
             password: parsedData.data.password,
             name: parsedData.data.name
         }
     });
-    //await sendEmail();
-    return res.json({
-        message: "Please verify your account"
+    // await sendEmail();
+    res.json({
+        message: "Please verify your account by checking your email"
     });
 }));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const body = req.body.username;
+    const body = req.body;
     const parsedData = types_1.SigninSchema.safeParse(body);
     if (!parsedData.success) {
-        return res.status(411).json({
-            message: "Incorrect Inputs"
+        res.status(411).json({
+            message: "Incorrect inputs"
         });
+        return;
     }
     const user = yield db_1.prismaClient.user.findFirst({
         where: {
-            email: body.parsedData.username,
-            password: body.parsedData.password
+            email: parsedData.data.username,
+            password: parsedData.data.password
         }
     });
     if (!user) {
-        return res.status(403).json({
+        res.status(403).json({
             message: "Sorry credentials are incorrect"
         });
+        return;
     }
     // sign the jwt
     const token = jsonwebtoken_1.default.sign({
@@ -77,8 +83,9 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
         token: token,
     });
 }));
-router.get("/user", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //@ts-ignore
+router.get("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // TODO: Fix the type
+    // @ts-ignore
     const id = req.id;
     const user = yield db_1.prismaClient.user.findFirst({
         where: {
@@ -89,7 +96,7 @@ router.get("/user", middleware_1.authMiddleware, (req, res) => __awaiter(void 0,
             email: true
         }
     });
-    return res.json({
+    res.json({
         user
     });
 }));

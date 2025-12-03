@@ -1,0 +1,27 @@
+{
+    "name": "zapier-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "primary-backend",
+        "worker",
+        "processor",
+        "hooks",
+        "frontend"
+    ],
+    "scripts": {
+        "db:up": "docker-compose up -d",
+        "db:down": "docker-compose down",
+        "dev:backend": "npm run dev --workspace=primary-backend",
+        "dev:worker": "npm run start --workspace=worker",
+        "dev:processor": "npm run start --workspace=processor",
+        "dev:hooks": "npm run start --workspace=hooks",
+        "dev:frontend": "npm run dev --workspace=frontend",
+        "build": "npm run build --workspaces",
+        "prisma:generate": "npm run prisma:generate --workspaces --if-present",
+        "dev": "concurrently \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:processor\" \"npm run dev:hooks\" \"npm run dev:frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

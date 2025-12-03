@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const prisma_1 = require("../src/generated/prisma");
+const client_1 = require("@prisma/client");
 const kafkajs_1 = require("kafkajs");
 const TOPIC_NAME = "zap-events";
-const client = new prisma_1.PrismaClient();
+const client = new client_1.PrismaClient();
 const kafka = new kafkajs_1.Kafka({
     clientId: 'outbox-processor',
     brokers: ['localhost:9092']
@@ -26,6 +26,10 @@ function main() {
                 where: {},
                 take: 10
             });
+            if (pendingRows.length === 0) {
+                yield new Promise(r => setTimeout(r, 3000));
+                continue;
+            }
             producer.send({
                 topic: TOPIC_NAME,
                 messages: pendingRows.map(r => {

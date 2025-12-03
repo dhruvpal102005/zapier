@@ -14,9 +14,10 @@ router.post("/signup", async (req, res) => {
 
     if (!parsedData.success) {
         console.log(parsedData.error);
-        return res.status(411).json({
+        res.status(411).json({
             message: "Incorrect inputs"
         })
+        return;
     }
 
     const userExists = await prismaClient.user.findFirst({
@@ -26,9 +27,10 @@ router.post("/signup", async (req, res) => {
     });
 
     if (userExists) {
-        return res.status(403).json({
+        res.status(403).json({
             message: "User already exists"
         })
+        return;
     }
 
     await prismaClient.user.create({
@@ -42,10 +44,9 @@ router.post("/signup", async (req, res) => {
 
     // await sendEmail();
 
-    return res.json({
+    res.json({
         message: "Please verify your account by checking your email"
     });
-
 })
 
 router.post("/signin", async (req, res) => {
@@ -53,9 +54,10 @@ router.post("/signin", async (req, res) => {
     const parsedData = SigninSchema.safeParse(body);
 
     if (!parsedData.success) {
-        return res.status(411).json({
+        res.status(411).json({
             message: "Incorrect inputs"
         })
+        return;
     }
 
     const user = await prismaClient.user.findFirst({
@@ -64,11 +66,12 @@ router.post("/signin", async (req, res) => {
             password: parsedData.data.password
         }
     });
-    
+
     if (!user) {
-        return res.status(403).json({
+        res.status(403).json({
             message: "Sorry credentials are incorrect"
         })
+        return;
     }
 
     // sign the jwt
@@ -95,7 +98,7 @@ router.get("/", authMiddleware, async (req, res) => {
         }
     });
 
-    return res.json({
+    res.json({
         user
     });
 })

@@ -13,14 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const prisma_1 = require("../src/generated/prisma");
-const client = new prisma_1.PrismaClient();
+const client_1 = require("@prisma/client");
+const client = new client_1.PrismaClient();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.userId;
     const zapId = req.params.zapId;
     const body = req.body;
+    const zap = yield client.zap.findUnique({
+        where: {
+            id: zapId
+        }
+    });
+    if (!zap) {
+        res.status(404).json({
+            message: "Zap not found"
+        });
+        return;
+    }
+    if (zap.userId !== parseInt(userId)) {
+        res.status(403).json({
+            message: "You don't have permission to access this zap"
+        });
+        return;
+    }
     // store in db a new trigger
     yield client.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         const run = yield tx.zapRun.create({
